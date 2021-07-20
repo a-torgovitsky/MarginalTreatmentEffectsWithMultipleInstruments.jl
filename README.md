@@ -1,8 +1,8 @@
-# Mogstad, Walters, Torgovitsky (2021)
+# Mogstad, Torgovitsky, and Walters (2021)
 
 Repo: https://github.com/a-torgovitsky/MarginalTreatmentEffectsWithMultipleInstruments.jl
 
-This package contains the code for the figures and simulations in "Policy Evaluation with Multiple Instrumental Variables" by Mogstad, Walters, and Torgovitsky (2021).
+This package contains the code for the figures and simulations in "Policy Evaluation with Multiple Instrumental Variables" by Mogstad, Torgovitsky, and Walters (2021).
 The code is written in Julia and tested with Julia version 1.6.0.
 To load/install dependencies:
 ```julia
