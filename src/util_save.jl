@@ -25,7 +25,7 @@ function make_dir(pathstr::String)
         @info "Directory already exists, so not copying source files."
     else
         mkpath(pathstr)
-        cplist = ["LICENSE.md", "Manifest.toml", "Project.toml", "README.md",
+        cplist = ["LICENSE", "Project.toml", "README.md",
                   "src", "tex"]
         sourcepathstr = joinpath(@__DIR__, "../")
         for c in cplist
