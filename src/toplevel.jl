@@ -34,7 +34,9 @@ function menu(savelocation::String = "."; compile::Bool = false)
             run_prte_misspecification(savedir, compile)
         return Dict(:results_mc => results_mc,
                     :results_att => results_att,
-                    :results_prte => results_prte)
+                    :results_prte => results_prte,
+                    :results_prte_misspecification =>
+                        results_prte_misspecification)
     end
 end
 export menu
