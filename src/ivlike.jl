@@ -1,8 +1,8 @@
 function make_slist(suppZ)
     # one way to generalize is allow for more general slists
     # for these simulations we are only using fully saturated
-    slist = [((d,z) -> Int((d == d̄) * (z == z̄)))
-             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
+    return [((d,z) -> Int((d == d̄) * (z == z̄)))
+            for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
 end
 
 function compute_βₛ(dgp::DGP)

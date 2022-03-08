@@ -49,7 +49,7 @@ function default_pscore()
 end
 
 function illustration_dgp()
-    dgp = DGP(
+    DGP(
         suppZ = default_suppZ(),
         densZ = fill(.25, 4),
         pscore = default_pscore(),
@@ -59,7 +59,7 @@ end
 export illustration_dgp
 
 function simulation_dgp()
-    dgp = DGP(
+    DGP(
         suppZ = default_suppZ(),
         densZ = [.4, .3, .1, .2],
         pscore = default_pscore(),
@@ -82,10 +82,10 @@ function prte_dgp(; ℓ_gen = 1)
                    ("Rows", "Cols"))
     @assert sum(n[:, "Pr"]) == 1
     # default, but writing it out here so construction below is clear
-    suppZ = [0 0 ;
-             0 1 ;
-             1 0 ;
-             1 1  ]
+    # suppZ = [0 0 ;
+    #          0 1 ;
+    #          1 0 ;
+    #          1 1  ]
     pscore = [n["at", "Pr"],
               n["at", "Pr"] + n["ec", "Pr"] + n["2c", "Pr"],
               n["at", "Pr"] + n["ec", "Pr"] + n["1c", "Pr"],
