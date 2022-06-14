@@ -41,6 +41,16 @@ function tslsslope_indicator(dgp::DGP)
     return [((d,z) -> (mult * [z[1] == zi for zi in dgp.suppZ])[2])][:]
 end
 
+function wald(dgp::DGP; z₀, z₁)
+    @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    dens1 = find_density([z₁], dgp)
+    dens0 = find_density([z₀], dgp)
+    pscore1 = find_pscore([z₁], dgp)
+    pscore0 = find_pscore([z₀], dgp)
+    denom = pscore1 - pscore0
+    slist = [((d,z) -> (((z[1] == z₁)/dens1 - (z[1] == z₀)/dens0) / denom))][:]
+end
+
 function compute_βₛ(dgp::DGP; slist = "saturated", param = missing)
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
                     slist = slist, param = param)
@@ -84,6 +94,11 @@ function compute_Γₛ(
         slist = ivslope_indicator(dgp, support = param)
     elseif (slist == "tslsslopeind")
         slist = tslsslope_indicator(dgp)
+    elseif (slist == "wald")
+        slist = []
+        for p in param
+            push!(slist, wald(dgp; z₀ = p[1], z₁ = p[2])[1])
+        end
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
