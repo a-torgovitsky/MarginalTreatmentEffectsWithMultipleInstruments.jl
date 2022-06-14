@@ -5,8 +5,9 @@ function make_slist(suppZ)
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
 end
 
-function compute_βₛ(dgp::DGP)
-    Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp)
+function compute_βₛ(dgp::DGP; slist = "saturated")
+    Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
+                    slist = slist)
     # Only one model here, so Γₛ is a 1 x 2 array of matrices
     βₛ = fill(NaN, size(Γₛ[1,1])[1])
     for s in 1:length(βₛ)
@@ -19,13 +20,20 @@ export compute_βₛ
 
 # return a 2-dimensional array Γₛ[ℓ, d], where each component is itself
 # a 3-dimensional array with elements [s, j, k]
-function compute_Γₛ(bases::Array{Tuple{MTRBasis, MTRBasis}, 1}, dgp::DGP)
-    [compute_Γₛ(basis[d + 1], d, dgp) for basis in bases, d in 0:1]
+function compute_Γₛ(
+    bases::Array{Tuple{MTRBasis, MTRBasis}, 1},
+    dgp::DGP;
+    slist = "saturated"
+)
+    [compute_Γₛ(basis[d + 1], d, dgp, slist = slist) for basis in bases,
+                                                         d in 0:1]
 end
 
-function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP)
+function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP; slist = "saturated")
     @assert d in [0,1]
-    slist = make_slist(dgp.suppZ)
+    if (slist == "saturated")
+        slist = make_slist(dgp.suppZ)
+    end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
         intlb = (1 - d) * dgp.pscore[i]
