@@ -5,6 +5,15 @@ function make_slist(suppZ)
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
 end
 
+function ivslope(dgp::DGP)
+    @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    expZ = dot(dgp.suppZ, dgp.densZ)
+    expD = dot(dgp.pscore, dgp.densZ)
+    expDZ = dot(dgp.pscore, dgp.densZ .* dgp.suppZ)
+    covDZ = expDZ - expD * expZ
+    return [((d,z) -> ((z[1] - expZ) / covDZ))][:]
+end
+
 function compute_βₛ(dgp::DGP; slist = "saturated")
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
                     slist = slist)
@@ -33,6 +42,8 @@ function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP; slist = "saturated
     @assert d in [0,1]
     if (slist == "saturated")
         slist = make_slist(dgp.suppZ)
+    elseif (slist == "ivslope")
+        slist = ivslope(dgp)
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
