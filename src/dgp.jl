@@ -7,6 +7,8 @@
     function DGP(suppZ, densZ, pscore, mtrs)
         @assert size(suppZ, 1) == length(densZ)
         @assert length(densZ) == length(pscore)
+        @assert all(densZ .≥ 0)
+        @assert sum(densZ) == 1
 
         new(suppZ, densZ, pscore, mtrs)
     end
