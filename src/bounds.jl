@@ -49,6 +49,18 @@ function compute_bounds(tp::TargetParameter,
                             j = 1:J[ℓ, d + 1], k = 1:K[ℓ, d + 1]) == βₛ[s])
     end
 
+    if (haskey(assumptions, :ivslopeind))
+        βₛ = compute_βₛ(dgp, slist = "ivslopeind",
+                        param = assumptions[:ivslopeind])
+        Γₛ = compute_Γₛ(bases, dgp, slist = "ivslopeind",
+                        param = assumptions[:ivslopeind])
+        @constraint(m, ivslopeind[ℓ = 1:L, s = 1:length(βₛ)],
+                    sum(θ[ℓ, d, j, k] * Γₛ[ℓ, d + 1][s, j, k]
+                        for d = 0:1,
+                            j = 1:J[ℓ, d + 1], k = 1:K[ℓ, d + 1]) == βₛ[s])
+    end
+
+
 
     ############################################################################
     # Target parameters

@@ -20,9 +20,19 @@ function olsslope(dgp::DGP)
     return [((d,z) -> ((d - prd1) / (prd1 * (1 - prd1))))][:]
 end
 
-function compute_βₛ(dgp::DGP; slist = "saturated")
+function ivslope_indicator(dgp::DGP; support = [1])
+    @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    expZind = i -> dgp.densZ[i]
+    expDZind = i -> dgp.pscore[i] * dgp.densZ[i]
+    expD = dot(dgp.pscore, dgp.densZ)
+    covDZind = i -> expDZind(i) - expD * expZind(i)
+    return [((d,z) -> ((Int(z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
+            for i in support][:]
+end
+
+function compute_βₛ(dgp::DGP; slist = "saturated", param = missing)
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
-                    slist = slist)
+                    slist = slist, param = param)
     # Only one model here, so Γₛ is a 1 x 2 array of matrices
     βₛ = fill(NaN, size(Γₛ[1,1])[1])
     for s in 1:length(βₛ)
@@ -38,13 +48,20 @@ export compute_βₛ
 function compute_Γₛ(
     bases::Array{Tuple{MTRBasis, MTRBasis}, 1},
     dgp::DGP;
-    slist = "saturated"
+    slist = "saturated",
+    param = missing
 )
-    [compute_Γₛ(basis[d + 1], d, dgp, slist = slist) for basis in bases,
-                                                         d in 0:1]
+    [compute_Γₛ(basis[d + 1], d, dgp, slist = slist, param = param)
+     for basis in bases, d in 0:1]
 end
 
-function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP; slist = "saturated")
+function compute_Γₛ(
+    basis::MTRBasis,
+    d::Integer,
+    dgp::DGP;
+    slist = "saturated",
+    param = missing
+)
     @assert d in [0,1]
     if (slist == "saturated")
         slist = make_slist(dgp.suppZ)
@@ -52,6 +69,8 @@ function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP; slist = "saturated
         slist = ivslope(dgp)
     elseif (slist == "olsslope")
         slist = olsslope(dgp)
+    elseif (slist == "ivslopeind")
+        slist = ivslope_indicator(dgp, support = param)
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
