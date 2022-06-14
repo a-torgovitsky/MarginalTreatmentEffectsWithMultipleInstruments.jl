@@ -30,6 +30,17 @@ function ivslope_indicator(dgp::DGP; support = [1])
             for i in support][:]
 end
 
+function tslsslope_indicator(dgp::DGP)
+    @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    Ztilde = dgp.densZ
+    expZZ = diagm(Ztilde)
+    expDZind = dgp.densZ .* dgp.pscore
+    expZX = hcat(Ztilde, expDZind)
+    Π = expZX' * inv(expZZ)
+    mult = inv(Π * expZX) * Π
+    return [((d,z) -> (mult * [z[1] == zi for zi in dgp.suppZ])[2])][:]
+end
+
 function compute_βₛ(dgp::DGP; slist = "saturated", param = missing)
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
                     slist = slist, param = param)
@@ -71,6 +82,8 @@ function compute_Γₛ(
         slist = olsslope(dgp)
     elseif (slist == "ivslopeind")
         slist = ivslope_indicator(dgp, support = param)
+    elseif (slist == "tslsslopeind")
+        slist = tslsslope_indicator(dgp)
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
