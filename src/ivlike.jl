@@ -14,6 +14,12 @@ function ivslope(dgp::DGP)
     return [((d,z) -> ((z[1] - expZ) / covDZ))][:]
 end
 
+function olsslope(dgp::DGP)
+    @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    prd1 = dot(dgp.pscore, dgp.densZ)
+    return [((d,z) -> ((d - prd1) / (prd1 * (1 - prd1))))][:]
+end
+
 function compute_βₛ(dgp::DGP; slist = "saturated")
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
                     slist = slist)
@@ -44,6 +50,8 @@ function compute_Γₛ(basis::MTRBasis, d::Integer, dgp::DGP; slist = "saturated
         slist = make_slist(dgp.suppZ)
     elseif (slist == "ivslope")
         slist = ivslope(dgp)
+    elseif (slist == "olsslope")
+        slist = olsslope(dgp)
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
     for (i,z) in enumerate(eachrow(dgp.suppZ))
