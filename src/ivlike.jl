@@ -1,7 +1,7 @@
 function make_slist(suppZ)
     # one way to generalize is allow for more general slists
     # for these simulations we are only using fully saturated
-    return [((d,z) -> Int((d == d̄) * (z == z̄)))
+    return [((d,z) -> (d == d̄) * (z == z̄))
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
 end
 
@@ -26,7 +26,7 @@ function ivslope_indicator(dgp::DGP; support = [1])
     expDZind = i -> dgp.pscore[i] * dgp.densZ[i]
     expD = dot(dgp.pscore, dgp.densZ)
     covDZind = i -> expDZind(i) - expD * expZind(i)
-    return [((d,z) -> ((Int(z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
+    return [((d,z) -> (((z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
             for i in support][:]
 end
 
