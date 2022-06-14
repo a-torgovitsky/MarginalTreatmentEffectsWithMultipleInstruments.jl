@@ -83,6 +83,17 @@ function prte_plusδpercent(dgp::DGP, δ; ℓ = 1)
 end
 export prte_plusδpercent
 
+function late(dgp::DGP, u₁, u₂; ℓ = 1)
+    @assert ℓ == 1 # haven't coded the other case
+    @assert u₁ <= u₂
+    TargetParameter(
+        "LATE(u₁, u₂)",
+        z -> (u₁, u₂),
+        (ℓ, d, z) -> ((1 == ℓ) * (2*d - 1) * find_density(z, dgp) / (u₂ - u₁))
+    )
+end
+export late
+
 ################################################################################
 # Special type of PRTE
 #   dgpnew and dgpold should have the same "support" points for Z
