@@ -34,6 +34,7 @@ function ivslope(dgp::DGP)
     s = [((d,z) -> ((z[1] - expZ) / covDZ))][:]
     IVLike(name, s)
 end
+export ivslope
 
 function olsslope(dgp::DGP)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
