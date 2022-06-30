@@ -25,8 +25,8 @@ function make_slist(suppZ)
 end
 
 function ivslope(dgp::DGP)
-    name = "IV Slope"
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    name = "IV Slope"
     expZ = dot(dgp.suppZ, dgp.densZ)
     expD = dot(dgp.pscore, dgp.densZ)
     expDZ = dot(dgp.pscore, dgp.densZ .* dgp.suppZ)
@@ -38,40 +38,54 @@ export ivslope
 
 function olsslope(dgp::DGP)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    name = "OLS Slope"
     prd1 = dot(dgp.pscore, dgp.densZ)
-    return [((d,z) -> ((d - prd1) / (prd1 * (1 - prd1))))][:]
+    s = [((d,z) -> ((d - prd1) / (prd1 * (1 - prd1))))][:]
+    IVLike(name, s)
 end
+export olsslope
 
 function ivslope_indicator(dgp::DGP; support = [1])
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    set = replace(string(support), "[" => "{", "]" => "}")
+    name = "IV Slope for 𝟙(Z == z) for z ∈" * set
     expZind = i -> dgp.densZ[i]
     expDZind = i -> dgp.pscore[i] * dgp.densZ[i]
     expD = dot(dgp.pscore, dgp.densZ)
     covDZind = i -> expDZind(i) - expD * expZind(i)
-    return [((d,z) -> (((z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
-            for i in support][:]
+    s = [((d,z) -> (((z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
+         for i in support][:]
+    IVLike(name, s)
 end
+export ivslope_indicator
 
 function tslsslope_indicator(dgp::DGP)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    set = replace(string(support), "[" => "{", "]" => "}")
+    name = "TSLS Slope for 𝟙(Z == z) for z ∈" * set
     Ztilde = dgp.densZ
     expZZ = diagm(Ztilde)
     expDZind = dgp.densZ .* dgp.pscore
     expZX = hcat(Ztilde, expDZind)
     Π = expZX' * inv(expZZ)
     mult = inv(Π * expZX) * Π
-    return [((d,z) -> (mult * [z[1] == zi for zi in dgp.suppZ])[2])][:]
+    s = [((d,z) -> (mult * [z[1] == zi for zi in dgp.suppZ])[2])][:]
+    IVLike(name, s)
 end
+export tslsslope_indicator
 
 function wald(dgp::DGP; z₀, z₁)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    name = "Wald (" * string(z₀) * ", " * string(z₁) * ")"
     dens1 = find_density([z₁], dgp)
     dens0 = find_density([z₀], dgp)
     pscore1 = find_pscore([z₁], dgp)
     pscore0 = find_pscore([z₀], dgp)
     denom = pscore1 - pscore0
-    slist = [((d,z) -> (((z[1] == z₁)/dens1 - (z[1] == z₀)/dens0) / denom))][:]
+    s = [((d,z) -> (((z[1] == z₁)/dens1 - (z[1] == z₀)/dens0) / denom))][:]
+    IVLike(name, s)
 end
+export wald
 
 function compute_βₛ(dgp::DGP; slist = "saturated", param = missing)
     Γₛ = compute_Γₛ([(dgp.mtrs[1].basis, dgp.mtrs[2].basis)], dgp,
@@ -111,15 +125,15 @@ function compute_Γₛ(
     elseif (slist == "ivslope")
         slist = ivslope(dgp).s
     elseif (slist == "olsslope")
-        slist = olsslope(dgp)
+        slist = olsslope(dgp).s
     elseif (slist == "ivslopeind")
-        slist = ivslope_indicator(dgp, support = param)
+        slist = ivslope_indicator(dgp, support = param).s
     elseif (slist == "tslsslopeind")
-        slist = tslsslope_indicator(dgp)
+        slist = tslsslope_indicator(dgp).s
     elseif (slist == "wald")
         slist = []
         for p in param
-            push!(slist, wald(dgp; z₀ = p[1], z₁ = p[2])[1])
+            push!(slist, wald(dgp; z₀ = p[1], z₁ = p[2]).s[1])
         end
     end
     Γₛ = zeros(length(slist), length(basis.a), length(basis.b))
