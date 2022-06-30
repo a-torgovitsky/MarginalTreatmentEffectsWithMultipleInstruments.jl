@@ -1,8 +1,27 @@
+################################################################################
+# An IVLike contains a vector of IV-like specifications, one for each
+# instrument.
+# Each IV-like specification is an anonymous function of two variables:
+#   1. treatment status d, and
+#   2. corresponding instrument value.
+################################################################################
+struct IVLike
+    name::String
+    s::Vector
+
+    function IVLike(name, s)
+        new(name, s)
+    end
+end
+
+
 function make_slist(suppZ)
     # one way to generalize is allow for more general slists
     # for these simulations we are only using fully saturated
-    return [((d,z) -> (d == d̄) * (z == z̄))
+    name = "Saturated"
+    s = [((d,z) -> (d == d̄) * (z == z̄))
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
+    IVLike(name, s)
 end
 
 function ivslope(dgp::DGP)
@@ -85,7 +104,7 @@ function compute_Γₛ(
 )
     @assert d in [0,1]
     if (slist == "saturated")
-        slist = make_slist(dgp.suppZ)
+        slist = make_slist(dgp.suppZ).s
     elseif (slist == "ivslope")
         slist = ivslope(dgp)
     elseif (slist == "olsslope")
