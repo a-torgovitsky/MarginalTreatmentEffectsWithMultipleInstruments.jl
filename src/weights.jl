@@ -26,3 +26,19 @@ function compute_average_weights(tp::TargetParameter)
     return results
 end
 export compute_average_weights
+
+function compute_average_weights(ivlike::IVLike, dgp::DGP)
+    results = DataFrame(u = dgp.pscore)
+    order = sortperm(dgp.pscore)
+    s = ivlike.s[1] # only coded the case of 1 instrument
+    terms = d -> [s(d, dgp.suppZ[i]) for i in 1:length(order)] .* dgp.densZ
+    # d = 0
+    d0terms = terms(0)
+    summands = d0terms[order] # order by increasing pscore
+    results[:, "average weight for d = 0"] = cumsum(summands)
+    # d = 1
+    d1terms = terms(1)
+    summands = d1terms[reverse(order)] # order by decreasing pscore
+    results[:, "average weight for d = 1"] = reverse(cumsum(summands))
+    return results
+end
