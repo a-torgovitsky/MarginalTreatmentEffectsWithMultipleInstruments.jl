@@ -25,12 +25,14 @@ function make_slist(suppZ)
 end
 
 function ivslope(dgp::DGP)
+    name = "IV Slope"
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
     expZ = dot(dgp.suppZ, dgp.densZ)
     expD = dot(dgp.pscore, dgp.densZ)
     expDZ = dot(dgp.pscore, dgp.densZ .* dgp.suppZ)
     covDZ = expDZ - expD * expZ
-    return [((d,z) -> ((z[1] - expZ) / covDZ))][:]
+    s = [((d,z) -> ((z[1] - expZ) / covDZ))][:]
+    IVLike(name, s)
 end
 
 function olsslope(dgp::DGP)
@@ -106,7 +108,7 @@ function compute_Γₛ(
     if (slist == "saturated")
         slist = make_slist(dgp.suppZ).s
     elseif (slist == "ivslope")
-        slist = ivslope(dgp)
+        slist = ivslope(dgp).s
     elseif (slist == "olsslope")
         slist = olsslope(dgp)
     elseif (slist == "ivslopeind")
