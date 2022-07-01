@@ -13,6 +13,7 @@ struct IVLike
         new(name, s)
     end
 end
+export IVLike
 
 
 function make_slist(suppZ)
