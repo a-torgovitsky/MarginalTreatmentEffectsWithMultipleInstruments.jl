@@ -35,7 +35,7 @@ function compute_average_weights(ivlike::IVLike, dgp::DGP)
     # d = 1
     d1terms = terms(1)
     summands = d1terms[reverse(order)] # order by decreasing pscore
-    results[:, "average weight for d = 1"] = reverse(cumsum(summands))
+    results[:, "average weight for d = 1"] = vcat(reverse(cumsum(summands))[2:end], 0)
     # d = 0
     d0terms = terms(0)
     summands = d0terms[order] # order by increasing pscore
