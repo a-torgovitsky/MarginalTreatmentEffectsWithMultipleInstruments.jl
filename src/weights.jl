@@ -32,10 +32,19 @@ end
 export compute_average_weights
 
 function compute_average_weights(ivlike::IVLike, dgp::DGP)
+    # only 1 s-list at a time!
+    # TODO: allow multiple entries in ivlike.s?
     results = DataFrame(u = unique(vcat(0, dgp.pscore)))
     order = sortperm(dgp.pscore)
-    s = ivlike.s[1] # only coded the case of 1 instrument
-    terms = d -> [s(d, dgp.suppZ[i]) for i in 1:length(order)] .* dgp.densZ
+    s = ivlike.s[1] # only 1 s-list at a time!
+    if ivlike.name == "Saturated"
+        # `eachrow()` in the `make_slist()` function yields vectors
+        # TODO: resolve this inconsistency
+        terms = d -> [s(d, [dgp.suppZ[i]]) for i in 1:length(order)]
+    else
+        terms = d -> [s(d, dgp.suppZ[i]) for i in 1:length(order)]
+    end
+    terms = terms .* dgp.densZ
     # d = 1
     d1terms = terms(1)
     summands = d1terms[reverse(order)] # order by decreasing pscore
