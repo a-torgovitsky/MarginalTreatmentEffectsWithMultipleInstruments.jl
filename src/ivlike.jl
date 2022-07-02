@@ -25,6 +25,7 @@ function make_slist(suppZ)
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
     IVLike(name, s, nothing)
 end
+export make_slist
 
 function ivslope(dgp::DGP)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
