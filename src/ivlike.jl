@@ -8,9 +8,10 @@
 struct IVLike
     name::String
     s::Vector
+    params::Any # accomodates `nothing`
 
-    function IVLike(name, s)
-        new(name, s)
+    function IVLike(name, s, params)
+        new(name, s, params)
     end
 end
 export IVLike
@@ -22,7 +23,7 @@ function make_slist(suppZ)
     name = "Saturated"
     s = [((d,z) -> (d == d̄) * (z == z̄))
             for d̄ in 0:1, z̄ in eachrow(suppZ)][:]
-    IVLike(name, s)
+    IVLike(name, s, nothing)
 end
 
 function ivslope(dgp::DGP)
@@ -33,7 +34,7 @@ function ivslope(dgp::DGP)
     expDZ = dot(dgp.pscore, dgp.densZ .* dgp.suppZ)
     covDZ = expDZ - expD * expZ
     s = [((d,z) -> ((z[1] - expZ) / covDZ))][:]
-    IVLike(name, s)
+    IVLike(name, s, nothing)
 end
 export ivslope
 
@@ -42,10 +43,11 @@ function olsslope(dgp::DGP)
     name = "OLS Slope"
     prd1 = dot(dgp.pscore, dgp.densZ)
     s = [((d,z) -> ((d - prd1) / (prd1 * (1 - prd1))))][:]
-    IVLike(name, s)
+    IVLike(name, s, nothing)
 end
 export olsslope
 
+# TODO: I'm not a fan of the name. Replace `indicator` with `nonparametric`?
 function ivslope_indicator(dgp::DGP; support = [1])
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
     set = replace(string(support), "[" => "{", "]" => "}")
@@ -56,7 +58,7 @@ function ivslope_indicator(dgp::DGP; support = [1])
     covDZind = i -> expDZind(i) - expD * expZind(i)
     s = [((d,z) -> (((z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
          for i in support][:]
-    IVLike(name, s)
+    IVLike(name, s, Dict(:support => support))
 end
 export ivslope_indicator
 
@@ -71,7 +73,7 @@ function tslsslope_indicator(dgp::DGP)
     Π = expZX' * inv(expZZ)
     mult = inv(Π * expZX) * Π
     s = [((d,z) -> (mult * [z[1] == zi for zi in dgp.suppZ])[2])][:]
-    IVLike(name, s)
+    IVLike(name, s, nothing)
 end
 export tslsslope_indicator
 
@@ -84,7 +86,7 @@ function wald(dgp::DGP; z₀, z₁)
     pscore0 = find_pscore([z₀], dgp)
     denom = pscore1 - pscore0
     s = [((d,z) -> (((z[1] == z₁)/dens1 - (z[1] == z₀)/dens0) / denom))][:]
-    IVLike(name, s)
+    IVLike(name, s, Dict(:z₀ => z₀, :z₁ => z₁))
 end
 export wald
 
