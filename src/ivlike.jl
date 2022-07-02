@@ -50,8 +50,8 @@ export olsslope
 # TODO: I'm not a fan of the name. Replace `indicator` with `nonparametric`?
 function ivslope_indicator(dgp::DGP; support = [1])
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
-    set = replace(string(support), "[" => "{", "]" => "}")
-    name = "IV Slope for 𝟙(Z == z) for z ∈" * set
+    set = replace(string(dgp.suppZ[support]), "[" => "{", "]" => "}")
+    name = "IV Slope for 𝟙(Z == z) for z ∈ " * set
     expZind = i -> dgp.densZ[i]
     expDZind = i -> dgp.pscore[i] * dgp.densZ[i]
     expD = dot(dgp.pscore, dgp.densZ)
