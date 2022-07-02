@@ -119,7 +119,10 @@ function constantspline_basis(knots::Vector{<:Real})
     @assert (0 in knots) & (1 in knots)
     unique!(knots)
     sort!(knots)
-    b = [u -> Int.(knots[k-1] .<= u .<= knots[k]) for k in 2:length(knots)]
+    # HACK: we want to ensure that u = last(knot) is still in a partition
+    endpoint = k -> k + 0.1 * Int(k == last(knots))
+    b = [u -> Int.(knots[k-1] .<= u .< endpoint(knots[k]))
+         for k in 2:length(knots)]
     ib = [(u, v) -> max(0, (min(v, knots[k]) - max(u, knots[k-1])))
           for k in 2:length(knots)]
     MTRBasis(a, b, ib)
