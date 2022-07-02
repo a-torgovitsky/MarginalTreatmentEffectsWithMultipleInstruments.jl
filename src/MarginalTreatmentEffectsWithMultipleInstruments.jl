@@ -15,7 +15,6 @@ module MarginalTreatmentEffectsWithMultipleInstruments
     include("dgp.jl")
     include("target_parameters.jl")
     include("ivlike.jl")
-    include("weights.jl")
     include("mutual_consistency.jl")
     include("bounds.jl")
     include("paper_simulations.jl")
