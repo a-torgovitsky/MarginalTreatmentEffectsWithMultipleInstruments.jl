@@ -65,6 +65,7 @@ export ivslope_indicator
 
 function tslsslope_indicator(dgp::DGP)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
+    support = dgp.suppZ
     set = replace(string(support), "[" => "{", "]" => "}")
     name = "TSLS Slope for 𝟙(Z == z) for z ∈" * set
     Ztilde = dgp.densZ
