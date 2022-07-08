@@ -70,6 +70,16 @@ function att(dgp::DGP; ℓ = 1)
 end
 export att
 
+function atu(dgp::DGP; ℓ = 1)
+    prd1 = dot(dgp.pscore, dgp.densZ)
+    TargetParameter(
+        "ATU",
+        z -> (find_pscore(z, dgp), 1),
+        (l,d,z) -> ((l == ℓ) * (2*d - 1)/(1 - prd1)) * find_density(z, dgp)
+    )
+end
+export atu
+
 function prte_plusδpercent(dgp::DGP, δ; ℓ = 1)
     @assert ℓ == 1 # haven't coded the other case
     limits = z -> (          find_pscore([0, z[2]], dgp),
