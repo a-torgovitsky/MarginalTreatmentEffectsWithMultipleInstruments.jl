@@ -83,6 +83,15 @@ function prte_plusδpercent(dgp::DGP, δ; ℓ = 1)
 end
 export prte_plusδpercent
 
+function ate(dgp::DGP; ℓ = 1)
+    TargetParameter(
+        "ATE",
+        z -> (0, 1),
+        (l,d,z) -> ((1 == ℓ) * (2*d - 1))
+    )
+end
+export ate
+
 function late(dgp::DGP, u₁, u₂; ℓ = 1)
     @assert ℓ == 1 # haven't coded the other case
     @assert u₁ <= u₂
