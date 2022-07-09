@@ -1,13 +1,16 @@
 function compute_bounds(tp::TargetParameter,
                         bases::Array{Tuple{MTRBasis, MTRBasis}, 1},
                         assumptions::Dict,
-                        dgp::DGP)
+                        dgp::DGP,
+                        attributes::Dict = Dict("LogLevel" => 0))
 
     ############################################################################
     # Set up problem
     ############################################################################
     m = Model(() -> Clp.Optimizer())
-    set_optimizer_attribute(m, "LogLevel", 0)
+    for (k, v) in attributes
+        set_optimizer_attribute(m, k, v)
+    end
 
     L = length(bases)
     J = [length(basis[d + 1].a) for basis in bases, d in 0:1]
