@@ -2,7 +2,14 @@ function compute_bounds(tp::TargetParameter,
                         bases::Array{Tuple{MTRBasis, MTRBasis}, 1},
                         assumptions::Dict,
                         dgp::DGP,
-                        attributes::Dict = Dict("LogLevel" => 0))
+                        attributes::Dict = Dict("LogLevel" => 0),
+                        startdf::DataFrame= DataFrame(
+                            ℓ = Int64[],
+                            d = Int64[],
+                            j = Int64[],
+                            k = Int64[],
+                            start = Float64[]
+                        ))
 
     ############################################################################
     # Set up problem
@@ -16,6 +23,13 @@ function compute_bounds(tp::TargetParameter,
     J = [length(basis[d + 1].a) for basis in bases, d in 0:1]
     K = [length(basis[d + 1].b) for basis in bases, d in 0:1]
     @variable(m, θ[ℓ = 1:L, d = 0:1, j = 1:J[ℓ, d + 1], k = 1:K[ℓ, d + 1]])
+
+    # set starting values
+    @assert names(startdf) == ["ℓ", "d", "j", "k", "start"]
+    for row in 1:nrow(startdf)
+        ℓ, d, j, k, start = startdf[row, :]
+        set_start_value(θ[ℓ, d, j, k], start)
+    end
 
     ############################################################################
     # Observational equivalence for each model
