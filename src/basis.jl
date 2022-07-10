@@ -119,9 +119,14 @@ function constantspline_basis(knots::Vector{<:Real})
     @assert (0 in knots) & (1 in knots)
     unique!(knots)
     sort!(knots)
-    # HACK: we want to ensure that u = last(knot) is still in a partition
-    endpoint = k -> k + 0.1 * Int(k == last(knots))
-    b = [u -> Int.(knots[k-1] .<= u .< endpoint(knots[k]))
+    # The knots partition [0, 1] into half-open partitions of the form
+    # [knots[k-1], knots[k]), except the final partition is closed on both ends.
+    in_partition = (u, k) -> ifelse(
+        k != last(knots),
+        Int.(knots[k-1] .<= u .< knots[k]),
+        Int.(knots[k-1] .<= u .<= knots[k])
+    )
+    b = [u -> in_partition(u, k)
          for k in 2:length(knots)]
     ib = [(u, v) -> max(0, (min(v, knots[k]) - max(u, knots[k-1])))
           for k in 2:length(knots)]
