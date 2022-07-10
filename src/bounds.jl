@@ -3,12 +3,19 @@ function compute_bounds(tp::TargetParameter,
                         assumptions::Dict,
                         dgp::DGP,
                         attributes::Dict = Dict("LogLevel" => 0),
-                        startdf::DataFrame= DataFrame(
+                        startdf::DataFrame = DataFrame(
                             ℓ = Int64[],
                             d = Int64[],
                             j = Int64[],
                             k = Int64[],
                             start = Float64[]
+                        ),
+                        fixdf::DataFrame = DataFrame(
+                            ℓ = Int64[],
+                            d = Int64[],
+                            j = Int64[],
+                            k = Int64[],
+                            fix = Float64[]
                         ))
 
     ############################################################################
@@ -29,6 +36,16 @@ function compute_bounds(tp::TargetParameter,
     for row in 1:nrow(startdf)
         ℓ, d, j, k, start = startdf[row, :]
         set_start_value(θ[ℓ, d, j, k], start)
+    end
+
+    # fix values
+    @assert names(fixdf) == ["ℓ", "d", "j", "k", "fix"]
+    for row in 1:nrow(fixdf)
+        ℓ, d, j, k, fix = fixdf[row, :]
+        if nrow(fixdf) == 1 # avoid warning about axis element
+            row = [row]
+        end
+        @constraint(m, fixvar[row], θ[ℓ, d, j, k] == fix)
     end
 
     ############################################################################
