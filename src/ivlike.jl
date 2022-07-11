@@ -81,7 +81,7 @@ export tslsslope_indicator
 
 function wald(dgp::DGP; z₀, z₁)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
-    name = "Wald (" * string(z₀) * ", " * string(z₁) * ")"
+    name = "Wald (Z = " * string(z₀) * " to Z = " * string(z₁) * ")"
     dens1 = find_density([z₁], dgp)
     dens0 = find_density([z₀], dgp)
     pscore1 = find_pscore([z₁], dgp)
