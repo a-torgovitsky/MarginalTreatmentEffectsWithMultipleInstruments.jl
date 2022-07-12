@@ -49,16 +49,20 @@ end
 export olsslope
 
 # TODO: I'm not a fan of the name. Replace `indicator` with `nonparametric`?
-function ivslope_indicator(dgp::DGP; support = [1])
+# support is a vector values in dgp.suppZ
+function ivslope_indicator(dgp::DGP; support::Vector)
     @assert size(dgp.suppZ, 2) == 1 # haven't coded other cases
-    set = replace(string(dgp.suppZ[support]), "[" => "{", "]" => "}")
+    sort!(unique!(support))
+    indices = indexin(support, dgp.suppZ[:, 1])
+    @assert !(nothing in indices) # ensure support is in dgp.suppZ
+    set = replace(string(support), "[" => "{", "]" => "}")
     name = "IV Slope for 𝟙(Z == z) for z ∈ " * set
     expZind = i -> dgp.densZ[i]
     expDZind = i -> dgp.pscore[i] * dgp.densZ[i]
     expD = dot(dgp.pscore, dgp.densZ)
     covDZind = i -> expDZind(i) - expD * expZind(i)
     s = [((d,z) -> (((z[1] == dgp.suppZ[i]) - expZind(i)) / covDZind(i)))
-         for i in support][:]
+         for i in indices][:]
     IVLike(name, s, Dict(:support => support))
 end
 export ivslope_indicator
