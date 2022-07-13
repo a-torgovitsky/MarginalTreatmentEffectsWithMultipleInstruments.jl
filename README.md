@@ -1,3 +1,5 @@
+***This package is deprecated in favor of [MarginalTreatmentEffects.jl](https://github.com/a-torgovitsky/MarginalTreatmentEffects.jl).***
+
 # Mogstad, Torgovitsky, and Walters (2021)
 
 Repo: https://github.com/a-torgovitsky/MarginalTreatmentEffectsWithMultipleInstruments.jl
