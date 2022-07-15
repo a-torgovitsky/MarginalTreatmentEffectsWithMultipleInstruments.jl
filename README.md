@@ -8,11 +8,11 @@ MarginalTreatmentEffects.jl replicates the figures in the following papers:
 3. "Policy Evaluation with Multiple Instrumental Variables"
     Mostad, Torgovitsky, and Walters (Forthcoming, _Journal of Econometrics_)
 
-# Mogstad, Torgovitsky, and Walters (2021)
+# Mogstad, Torgovitsky, and Walters (Forthcoming, _Journal of Econometrics_)
 
 Repo: https://github.com/a-torgovitsky/MarginalTreatmentEffectsWithMultipleInstruments.jl
 
-This package contains the code for the figures and simulations in "Policy Evaluation with Multiple Instrumental Variables" by Mogstad, Torgovitsky, and Walters (2021).
+This package contains the code for the figures and simulations in "Policy Evaluation with Multiple Instrumental Variables" by Mogstad, Torgovitsky, and Walters (Forthcoming).
 The code is written in Julia and tested with Julia version 1.6.0.
 To load/install dependencies:
 ```julia
